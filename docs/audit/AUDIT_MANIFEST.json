@@ -1,0 +1,53 @@
+{
+  "project": "karaoke-core",
+  "generatedAt": "2026-09-23T02:43:53.342Z",
+  "testSuite": {
+    "reportPath": "test-report.xml",
+    "totalTests": 44,
+    "status": "ALL_PASSING"
+  },
+  "logs": [
+    {
+      "task": "Task 0.1 - In-Memory Datastore & Transaction Log",
+      "conversationId": "e357c411-7fc4-425b-9b86-de279ed4d1cb",
+      "archiveFile": "logs/task-0.1-store-transcript.jsonl",
+      "sizeBytes": 54652,
+      "updatedAt": "2026-09-23T02:43:53.329Z"
+    },
+    {
+      "task": "Task 0.2 - Secure DOCX Extraction",
+      "conversationId": "bab779a0-ae8a-4d95-b979-ad12ff014a47",
+      "archiveFile": "logs/task-0.2-docx-transcript.jsonl",
+      "sizeBytes": 48794,
+      "updatedAt": "2026-09-23T02:43:53.333Z"
+    },
+    {
+      "task": "Task 1.1 - Google Drive Ingestion Pipeline",
+      "conversationId": "4a6a1f1e-fdc1-4719-932b-0081f10930d8",
+      "archiveFile": "logs/task-1.1-drive-transcript.jsonl",
+      "sizeBytes": 110890,
+      "updatedAt": "2026-09-23T02:43:53.335Z"
+    },
+    {
+      "task": "Task 1.2 - YouTube Search Mapping & Quota Protection",
+      "conversationId": "f958614f-d51f-418b-9dc1-c7d1158fa440",
+      "archiveFile": "logs/task-1.2-youtube-transcript.jsonl",
+      "sizeBytes": 83652,
+      "updatedAt": "2026-09-23T02:43:53.336Z"
+    },
+    {
+      "task": "Wave P2 - Frontend & Sync Engine (KaraokePlayer & KaraokeWord)",
+      "conversationId": "39ca8694-c14a-44a7-94b7-a61919e931c9",
+      "archiveFile": "logs/wave-p2-sync-engine-transcript.jsonl",
+      "sizeBytes": 176558,
+      "updatedAt": "2026-09-23T02:43:53.339Z"
+    },
+    {
+      "task": "Parent Orchestrator Session",
+      "conversationId": "ebe9d28a-4dee-4cdc-bad1-ee69a0050b15",
+      "archiveFile": "logs/parent-orchestrator-transcript.jsonl",
+      "sizeBytes": 324780,
+      "updatedAt": "2026-09-23T02:43:53.342Z"
+    }
+  ]
+}

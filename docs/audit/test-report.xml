@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="DOCX Ingestion - Extracts text correctly from valid DOCX stream" time="0.031825" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="DOCX Ingestion - Extracts text correctly from valid DOCX buffer" time="0.008025" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="DOCX Ingestion - Stream exceeding 5MB ceiling is immediately destroyed and rejected with Security Error" time="0.002545" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="DOCX Ingestion - Buffer exceeding 5MB is immediately rejected with Security Error" time="0.001223" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="DOCX Ingestion - Rejects gracefully with corrupted or invalid DOCX data from stream" time="0.002645" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="DOCX Ingestion - Rejects gracefully with corrupted or invalid DOCX data from buffer" time="0.000506" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="DOCX Ingestion - Rejects empty stream gracefully" time="0.000374" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\docx.test.ts"/>
+	<testcase name="getDriveClient - throws error when credentials are not configured" time="0.000946" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="getDriveClient - creates drive client from credentials JSON" time="0.000373" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="cleanSongTitle - cleans file extension and chord annotations" time="0.000257" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="parseRawTextToLines - converts raw text to structured LyricLine array" time="0.000254" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="listFolderFiles - queries drive with correct parent query, fields, and handles pagination" time="0.000227" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="getFileStream - routes Google Docs to export({ mimeType: &amp;quot;text/plain&amp;quot; })" time="0.000698" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="getFileStream - routes binary DOCX to get({ alt: &amp;quot;media&amp;quot; })" time="0.000203" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="syncDriveFolder - downloads, extracts, and upserts new DOCX song into store" time="0.029575" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="syncDriveFolder - incremental sync skips re-downloading existing file when md5Checksum matches" time="0.009982" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="syncDriveFolder - handles Google Docs export and syncs correctly into store" time="0.003754" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="syncDriveFolder - preserves existing youtubeVideoId when re-syncing song" time="0.011572" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="syncDriveFolder - isolates file errors without stopping the remaining files in the batch" time="0.007549" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\drive.test.ts"/>
+	<testcase name="Store - Inserting songs stores them in memory and lookups return the song" time="0.004152" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\store.test.ts"/>
+	<testcase name="Store - Transactions are synchronously recorded in data.jsonl" time="0.002796" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\store.test.ts"/>
+	<testcase name="Store - test_transaction_log_recovery: 3 updates, simulate restart, verify accurate state" time="0.002960" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\store.test.ts"/>
+	<testcase name="Store - Replay supports UPDATE_TIMESTAMPS and skips corrupted lines gracefully" time="0.003478" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\store.test.ts"/>
+	<testcase name="Store - Automatically creates nested directory for transaction log if not present" time="0.002927" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\store.test.ts"/>
+	<testcase name="Store - Module-level singleton functions operate correctly" time="0.002021" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\store.test.ts"/>
+	<testcase name="calculateWordProgress - boundary points and edge cases" time="0.000667" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\sync.test.ts"/>
+	<testcase name="formatProgressPercent - formats clamped percentage with two decimals" time="0.000136" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\sync.test.ts"/>
+	<testcase name="getWordFillGradient - outputs valid CSS background-clip gradient styles" time="0.000178" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\sync.test.ts"/>
+	<testcase name="createWordTransform - Framer Motion mapping at start, mid, end without drift" time="0.000706" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\sync.test.ts"/>
+	<testcase name="KaraokeWord - renders word text, handles chord floating above word, and syncs fill" time="0.007340" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\sync.test.ts"/>
+	<testcase name="KaraokePlayer - embeds YouTube IFrame with enablejsapi and renders lyric lines and words" time="0.001801" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\sync.test.ts"/>
+	<testcase name="getYouTubeClient - throws error when YOUTUBE_API_KEY is not defined and no argument passed" time="0.001122" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="getYouTubeClient - creates client when apiKey is provided or process.env.YOUTUBE_API_KEY is set" time="0.000683" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="cleanSongTitle - cleans file extensions, chord annotations, and parentheses" time="0.000325" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="buildYouTubeSearchQuery - generates clean query with official audio suffix" time="0.000151" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="searchSongVideo - queries YouTube search API with video filter and returns videoId and title" time="0.000822" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="searchSongVideo - returns null when search returns no items or query is empty" time="0.000134" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="searchSongVideo - handles YouTube API quota exceeded (HTTP 403) gracefully returning null" time="0.000517" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="searchSongVideo - handles network failure gracefully returning null" time="0.000217" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="mapSongToYouTube - throws error when song does not exist in store" time="0.001411" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="mapSongToYouTube - cache-first: does NOT call YouTube API when song already has youtubeVideoId" time="0.002887" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="mapSongToYouTube - force: true bypasses cache and re-queries YouTube API" time="0.002487" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="mapSongToYouTube - calls search API when youtubeVideoId is missing, updates store, and writes to log" time="0.002409" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<testcase name="mapSongToYouTube - handles quota exceeded (HTTP 403) gracefully without crashing and preserves song in store" time="0.001535" classname="test" file="P:\Antigravity\Cakewalk_MIDI\test\youtube.test.ts"/>
+	<!-- tests 44 -->
+	<!-- suites 0 -->
+	<!-- pass 44 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 3295.0532 -->
+</testsuites>

@@ -1,0 +1,23 @@
+{
+  "name": "karaoke-core",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "test:tap": "node --test --test-reporter=tap",
+    "test:junit": "node --test --test-reporter=junit --test-reporter-destination=test-report.xml",
+    "audit:archive": "node scripts/archive-audit.mjs"
+  },
+  "dependencies": {
+    "framer-motion": "^13.4.0",
+    "googleapis": "^181.0.0",
+    "mammoth": "^1.12.3",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsx": "^4.23.15"
+  }
+}

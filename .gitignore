@@ -1,0 +1,29 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+
+# Environment and Secrets
+.env
+.env*.local
+service-account*.json
+credentials*.json
+
+# Antigravity Scratch and temp
+scratch/
+tmp/
+*.tmp
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Binary installers
+*.exe
+*.msi
+*.zip
+
+# Build outputs
+dist/
+build/
+.next/
