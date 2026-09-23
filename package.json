@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start": "tsx src/server/server.ts",
     "test": "node --test",
     "test:tap": "node --test --test-reporter=tap",
     "test:junit": "node --test --test-reporter=junit --test-reporter-destination=test-report.xml",

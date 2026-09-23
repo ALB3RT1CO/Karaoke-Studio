@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karaoke Classic - Word by Word Sync</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              cyan: '#00f2fe',
+              blue: '#4facfe',
+              neon: '#38ef7d',
+              chord: '#f6d365'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Smooth karaoke word fill styles */
+    .karaoke-word {
+      position: relative;
+      display: inline-block;
+      margin: 0.15rem 0.35rem;
+      font-weight: 700;
+      color: #64748b; /* unhighlighted dimmed color */
+      transition: color 0.1s ease;
+      cursor: pointer;
+    }
+
+    .karaoke-word.active-fill {
+      background: linear-gradient(
+        to right,
+        #00f2fe 0%,
+        #38ef7d var(--fill, 0%),
+        #64748b var(--fill, 0%),
+        #64748b 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .karaoke-word.completed-fill {
+      background: linear-gradient(to right, #00f2fe 0%, #38ef7d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .chord-tag {
+      position: absolute;
+      top: -1.3rem;
+      left: 0;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #f6d365;
+      text-shadow: 0 0 10px rgba(246, 211, 101, 0.4);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="bg-[#07090e] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <svg class="w-5 h-5 text-slate-950 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-base font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Karaoke Studio</h1>
+        <p class="text-[11px] font-medium text-emerald-400 tracking-wider uppercase flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          Word-by-Word Classic Sync
+        </p>
+      </div>
+    </div>
+
+    <!-- Right header stats & controls -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-900/90 rounded-lg border border-slate-800 text-xs">
+        <span class="text-slate-400">Database:</span>
+        <span class="font-mono text-cyan-400 font-semibold">In-Memory + data.jsonl</span>
+      </div>
+      <button id="tapModeBtn" onclick="toggleTapMode()" class="px-3.5 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+        </svg>
+        <span id="tapModeLabel">Tap-to-Sync Mode: OFF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Column: Video Player & Song Selection (5 cols) -->
+    <div class="lg:col-span-5 space-y-5">
+
+      <!-- Song Selector Card -->
+      <div class="bg-[#0f1422] border border-slate-800/80 rounded-2xl p-4 shadow-xl">
+        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select Song from Ingested Library</label>
+        <div class="relative">
+          <select id="songSelect" onchange="onSongChange()" class="w-full bg-[#161d31] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 appearance-none cursor-pointer">
+            <option value="" disabled selected>Loading songs...</option>
+          </select>
+          <div class="absolute right-3.5 top-3.5 pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+
+        <div id="songMeta" class="mt-3.5 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <div>
+            <span class="text-slate-500">File ID:</span>
+            <span id="metaId" class="font-mono text-slate-400 ml-1">---</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500">YouTube:</span>
+            <span id="metaYoutube" class="font-mono text-cyan-400 font-semibold ml-1">---</span>
+            <button onclick="promptChangeYouTubeVideo()" class="ml-2 text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/40 transition font-medium" title="Change YouTube Video Link">Change</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- YouTube Player Card -->
+      <div class="bg-[#0f1422] border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="aspect-video w-full bg-black relative flex items-center justify-center">
+          <div id="playerContainer" class="w-full h-full">
+            <div id="ytPlayer"></div>
+          </div>
+          <div id="playerPlaceholder" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center text-center p-6 space-y-3">
+            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <p class="text-sm font-medium text-slate-300">Select a song to load YouTube backing track</p>
+          </div>
+        </div>
+
+        <!-- Custom Controls Bar -->
+        <div class="p-4 bg-[#121829] border-t border-slate-800/80 space-y-3">
+          <!-- Time scrubber -->
+          <div class="flex items-center space-x-3 text-xs font-mono text-slate-400">
+            <span id="currentTimeLabel">0:00</span>
+            <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" oninput="onSeekInput(this.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+            <span id="durationLabel">0:00</span>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <button onclick="togglePlay()" id="playBtn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 font-bold text-xs hover:brightness-110 active:scale-95 transition flex items-center gap-1.5 shadow-md shadow-cyan-500/20">
+                <svg id="playIcon" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <span id="playBtnText">Play</span>
+              </button>
+              <button onclick="restartVideo()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" title="Restart">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </button>
+            </div>
+
+            <!-- Volume / Sync info -->
+            <div class="flex items-center space-x-2 text-xs">
+              <span class="text-slate-500">Speed:</span>
+              <select id="playbackRateSelect" onchange="onRateChange(this.value)" class="bg-slate-800 border border-slate-700 text-white rounded px-1.5 py-0.5 font-mono text-[11px]">
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1.0x</option>
+                <option value="1.25">1.25x</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tap to sync instructions card (visible when tap mode is ON) -->
+      <div id="tapInstructions" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-xs space-y-2 text-amber-200">
+        <div class="flex items-center gap-2 font-bold text-amber-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Interactive Tap-to-Beat Mode Enabled
+        </div>
+        <p>1. Start playback of the video.</p>
+        <p>2. Press the <kbd class="px-2 py-0.5 bg-black/40 border border-amber-500/40 rounded font-mono font-bold text-amber-300">Spacebar</kbd> or click the big <strong class="text-amber-300">"TAP BEAT"</strong> button at the moment each word is sung.</p>
+        <p>3. Timestamps are recorded in real-time and immediately saved to the in-memory store and <code class="font-mono text-cyan-400">data.jsonl</code>!</p>
+        <div class="pt-2">
+          <button id="tapBigButton" onmousedown="recordTapWord()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm rounded-xl uppercase tracking-wider shadow-lg shadow-amber-500/20 active:scale-95 transition">
+            TAP BEAT (Spacebar)
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Karaoke Scrolling Lyrics Display (7 cols) -->
+    <div class="lg:col-span-7">
+      <div class="bg-[#0f1422] border border-slate-800/80 rounded-2xl shadow-2xl flex flex-col h-[750px]">
+        
+        <!-- Lyrics Header -->
+        <div class="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between bg-[#121829]/60 rounded-t-2xl">
+          <div>
+            <h2 id="songTitleDisplay" class="text-lg font-bold text-white tracking-tight">Select a Song</h2>
+            <p id="songSubtitleDisplay" class="text-xs text-slate-400">Lyrics with guitar chords and millisecond word synchronization</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="saveTimestampsToBackend()" id="saveBtn" class="hidden px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 text-xs font-semibold transition">
+              Save Timestamps
+            </button>
+          </div>
+        </div>
+
+        <!-- Lyrics Scroll Area -->
+        <div id="lyricsContainer" class="flex-1 overflow-y-auto px-6 py-12 space-y-8 scroll-smooth text-center">
+          <div class="flex flex-col items-center justify-center h-full text-slate-500 space-y-2">
+            <svg class="w-10 h-10 text-slate-600 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path>
+            </svg>
+            <p class="text-sm">Choose a song from the library on the left to begin playback</p>
+          </div>
+        </div>
+
+        <!-- Lyrics Footer / Stats -->
+        <div class="px-6 py-3 border-t border-slate-800/80 bg-[#121829]/60 rounded-b-2xl flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            <span>Real-time animation: <strong class="text-slate-200">requestAnimationFrame</strong></span>
+          </div>
+          <div id="activeWordIndexInfo" class="font-mono text-slate-500">
+            Word 0 / 0
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- YouTube IFrame API Script -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <!-- Application Logic -->
+  <script>
+    let currentSongs = [];
+    let activeTrack = null;
+    let ytPlayer = null;
+    let isPlayerReady = false;
+    let isPlaying = false;
+    let animFrameId = null;
+    let tapMode = false;
+    let tapCurrentWordIdx = 0;
+    let flatWordList = [];
+
+    // Initialize & Fetch Songs
+    window.addEventListener('DOMContentLoaded', async () => {
+      await fetchSongs();
+    });
+
+    async function fetchSongs() {
+      try {
+        const res = await fetch('/api/songs');
+        currentSongs = await res.json();
+        const select = document.getElementById('songSelect');
+        select.innerHTML = '';
+
+        if (currentSongs.length === 0) {
+          select.innerHTML = '<option disabled selected>No songs in datastore</option>';
+          return;
+        }
+
+        currentSongs.forEach((song, idx) => {
+          const opt = document.createElement('option');
+          opt.value = song.id;
+          opt.textContent = `${idx + 1}. ${song.title || 'Untitled Song'}`;
+          select.appendChild(opt);
+        });
+
+        // Select first song by default
+        select.selectedIndex = 0;
+        onSongChange();
+      } catch (err) {
+        console.error('Error fetching songs:', err);
+      }
+    }
+
+    function onSongChange() {
+      const select = document.getElementById('songSelect');
+      const songId = select.value;
+      activeTrack = currentSongs.find(s => s.id === songId);
+
+      if (!activeTrack) return;
+
+      document.getElementById('metaId').textContent = activeTrack.id.substring(0, 12) + '...';
+      document.getElementById('metaYoutube').textContent = activeTrack.youtubeVideoId || 'None (Search Available)';
+      document.getElementById('songTitleDisplay').textContent = activeTrack.title || 'Song Details';
+
+      // Flatten words for linear sync & tap mode
+      flatWordList = [];
+      activeTrack.lines.forEach((line, lIdx) => {
+        line.words.forEach((w, wIdx) => {
+          flatWordList.push({
+            ...w,
+            lineIndex: lIdx,
+            wordIndex: wIdx,
+            chord: (wIdx === 0 && line.chord) ? line.chord : undefined
+          });
+        });
+      });
+
+      renderLyrics();
+      loadVideo(activeTrack.youtubeVideoId || 'kXYiU_JCYtU'); // Default to popular backing track if unmapped
+    }
+
+    function renderLyrics() {
+      const container = document.getElementById('lyricsContainer');
+      container.innerHTML = '';
+
+      if (!activeTrack || !activeTrack.lines || activeTrack.lines.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 py-10">No lyric lines parsed for this document.</p>';
+        return;
+      }
+
+      activeTrack.lines.forEach((line, lIdx) => {
+        const lineEl = document.createElement('div');
+        lineEl.id = `line-${lIdx}`;
+        lineEl.className = 'lyric-line py-3 px-4 rounded-xl transition duration-300 relative';
+
+        line.words.forEach((w, wIdx) => {
+          const wordEl = document.createElement('span');
+          wordEl.id = `word-${lIdx}-${wIdx}`;
+          wordEl.className = 'karaoke-word text-xl sm:text-2xl';
+          wordEl.textContent = w.text;
+
+          // Render chord annotation if exists on this line/word
+          if (wIdx === 0 && line.chord) {
+            const chordEl = document.createElement('span');
+            chordEl.className = 'chord-tag';
+            chordEl.textContent = line.chord;
+            wordEl.appendChild(chordEl);
+          }
+
+          // Clicking a word seeks to its start time
+          wordEl.onclick = () => {
+            if (ytPlayer && w.start > 0) {
+              ytPlayer.seekTo(w.start, true);
+            }
+          };
+
+          lineEl.appendChild(wordEl);
+        });
+
+        container.appendChild(lineEl);
+      });
+    }
+
+    // YouTube API Ready Callback
+    function onYouTubeIframeAPIReady() {
+      // API loaded
+    }
+
+    function loadVideo(videoId) {
+      document.getElementById('playerPlaceholder').classList.add('hidden');
+
+      if (!ytPlayer) {
+        ytPlayer = new YT.Player('ytPlayer', {
+          height: '100%',
+          width: '100%',
+          videoId: videoId,
+          playerVars: {
+            playsinline: 1,
+            controls: 1,
+            modestbranding: 1,
+            rel: 0
+          },
+          events: {
+            onReady: () => {
+              isPlayerReady = true;
+            },
+            onStateChange: onPlayerStateChange
+          }
+        });
+      } else {
+        ytPlayer.loadVideoById(videoId);
+      }
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        isPlaying = true;
+        document.getElementById('playBtnText').textContent = 'Pause';
+        document.getElementById('playIcon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        startSyncLoop();
+      } else {
+        isPlaying = false;
+        document.getElementById('playBtnText').textContent = 'Play';
+        document.getElementById('playIcon').innerHTML = '<path d="M8 5v14l11-7z"/>';
+        stopSyncLoop();
+      }
+    }
+
+    function togglePlay() {
+      if (!ytPlayer || !isPlayerReady) return;
+      if (isPlaying) {
+        ytPlayer.pauseVideo();
+      } else {
+        ytPlayer.playVideo();
+      }
+    }
+
+    function restartVideo() {
+      if (!ytPlayer || !isPlayerReady) return;
+      ytPlayer.seekTo(0, true);
+      ytPlayer.playVideo();
+    }
+
+    function onSeekInput(pct) {
+      if (!ytPlayer || !isPlayerReady) return;
+      const duration = ytPlayer.getDuration() || 1;
+      const seekTime = (pct / 100) * duration;
+      ytPlayer.seekTo(seekTime, true);
+    }
+
+    function onRateChange(rate) {
+      if (!ytPlayer || !isPlayerReady) return;
+      ytPlayer.setPlaybackRate(parseFloat(rate));
+    }
+
+    // Zero-re-render Sync Loop via requestAnimationFrame
+    function startSyncLoop() {
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+
+      function tick() {
+        if (ytPlayer && isPlayerReady && isPlaying) {
+          const currentTime = ytPlayer.getCurrentTime() || 0;
+          const duration = ytPlayer.getDuration() || 0;
+
+          // Update time labels & progress bar
+          document.getElementById('currentTimeLabel').textContent = formatTime(currentTime);
+          document.getElementById('durationLabel').textContent = formatTime(duration);
+          if (duration > 0) {
+            document.getElementById('progressBar').value = (currentTime / duration) * 100;
+          }
+
+          // Update word-by-word highlights
+          updateLyricsHighlight(currentTime);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      }
+
+      animFrameId = requestAnimationFrame(tick);
+    }
+
+    function stopSyncLoop() {
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+    }
+
+    function updateLyricsHighlight(currentTime) {
+      if (!activeTrack) return;
+
+      let activeLineIdx = -1;
+      let activeWordCount = 0;
+
+      activeTrack.lines.forEach((line, lIdx) => {
+        let isLineActive = false;
+
+        line.words.forEach((w, wIdx) => {
+          const el = document.getElementById(`word-${lIdx}-${wIdx}`);
+          if (!el) return;
+
+          if (w.start === 0 && w.end === 0) {
+            // Un-timed song fallback: keep regular dimmed
+            el.className = 'karaoke-word text-xl sm:text-2xl';
+            return;
+          }
+
+          if (currentTime >= w.end) {
+            // Already sung: 100% completed highlight
+            el.className = 'karaoke-word text-xl sm:text-2xl completed-fill';
+            el.style.removeProperty('--fill');
+            activeWordCount++;
+          } else if (currentTime >= w.start && currentTime < w.end) {
+            // Currently being sung: millisecond gradient fill
+            const duration = Math.max(w.end - w.start, 0.05);
+            const progress = Math.min(Math.max((currentTime - w.start) / duration, 0), 1);
+            const percentStr = (progress * 100).toFixed(1) + '%';
+
+            el.className = 'karaoke-word text-xl sm:text-2xl active-fill';
+            el.style.setProperty('--fill', percentStr);
+            isLineActive = true;
+            activeLineIdx = lIdx;
+            activeWordCount++;
+          } else {
+            // Future word: dimmed
+            el.className = 'karaoke-word text-xl sm:text-2xl';
+            el.style.removeProperty('--fill');
+          }
+        });
+
+        // Highlight active line container
+        const lineEl = document.getElementById(`line-${lIdx}`);
+        if (lineEl) {
+          if (isLineActive) {
+            lineEl.classList.add('bg-slate-800/40', 'scale-[1.02]');
+          } else {
+            lineEl.classList.remove('bg-slate-800/40', 'scale-[1.02]');
+          }
+        }
+      });
+
+      document.getElementById('activeWordIndexInfo').textContent = `Word ${activeWordCount} / ${flatWordList.length}`;
+
+      // Smooth auto-scroll active line to center
+      if (activeLineIdx >= 0) {
+        const activeLineEl = document.getElementById(`line-${activeLineIdx}`);
+        if (activeLineEl) {
+          activeLineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Tap to sync logic
+    function toggleTapMode() {
+      tapMode = !tapMode;
+      const label = document.getElementById('tapModeLabel');
+      const instructions = document.getElementById('tapInstructions');
+      const saveBtn = document.getElementById('saveBtn');
+
+      if (tapMode) {
+        label.textContent = 'Tap-to-Sync Mode: ON';
+        instructions.classList.remove('hidden');
+        saveBtn.classList.remove('hidden');
+        tapCurrentWordIdx = 0;
+      } else {
+        label.textContent = 'Tap-to-Sync Mode: OFF';
+        instructions.classList.add('hidden');
+        saveBtn.classList.add('hidden');
+      }
+    }
+
+    // Spacebar listener for Tap Mode
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && tapMode) {
+        e.preventDefault();
+        recordTapWord();
+      }
+    });
+
+    function recordTapWord() {
+      if (!tapMode || !activeTrack || !ytPlayer) return;
+      const now = ytPlayer.getCurrentTime() || 0;
+
+      if (tapCurrentWordIdx < flatWordList.length) {
+        const item = flatWordList[tapCurrentWordIdx];
+        const line = activeTrack.lines[item.lineIndex];
+        const word = line.words[item.wordIndex];
+
+        word.start = parseFloat(now.toFixed(2));
+        word.end = parseFloat((now + 0.6).toFixed(2)); // Default duration 600ms or until next tap
+
+        if (tapCurrentWordIdx > 0) {
+          // Adjust previous word's end time to current start
+          const prevItem = flatWordList[tapCurrentWordIdx - 1];
+          const prevWord = activeTrack.lines[prevItem.lineIndex].words[prevItem.wordIndex];
+          prevWord.end = word.start;
+        }
+
+        tapCurrentWordIdx++;
+        updateLyricsHighlight(now);
+      }
+    }
+
+    async function saveTimestampsToBackend() {
+      if (!activeTrack) return;
+      try {
+        const res = await fetch(`/api/songs/${activeTrack.id}/timestamps`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lines: activeTrack.lines })
+        });
+        if (res.ok) {
+          alert('Timestamps saved successfully to In-Memory Store and data.jsonl!');
+        } else {
+          alert('Failed to save timestamps.');
+        }
+      } catch (err) {
+        alert('Error saving timestamps: ' + err.message);
+      }
+    }
+
+    async function promptChangeYouTubeVideo() {
+      if (!activeTrack) return;
+      const currentUrl = activeTrack.youtubeVideoId ? `https://www.youtube.com/watch?v=${activeTrack.youtubeVideoId}` : '';
+      const newUrl = prompt(`Enter new YouTube Link or Video ID for "${activeTrack.title}":`, currentUrl);
+      if (!newUrl || newUrl.trim() === '') return;
+
+      try {
+        const res = await fetch(`/api/songs/${activeTrack.id}/youtube`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId: newUrl.trim() })
+        });
+        const data = await res.json();
+        if (res.ok && data.song) {
+          activeTrack.youtubeVideoId = data.song.youtubeVideoId;
+          document.getElementById('metaYoutube').textContent = activeTrack.youtubeVideoId;
+          loadVideo(activeTrack.youtubeVideoId);
+          alert('YouTube backing track updated and saved!');
+        } else {
+          alert('Error updating YouTube video: ' + (data.error || 'Failed'));
+        }
+      } catch (err) {
+        alert('Request failed: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

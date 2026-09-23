@@ -2,6 +2,9 @@
 node_modules/
 npm-debug.log*
 
+# Project backup folder
+Karaoke_app/
+
 # Environment and Secrets
 .env
 .env*.local
