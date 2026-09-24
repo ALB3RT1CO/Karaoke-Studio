@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  karaoke-app:
+    build: .
+    container_name: karaoke-app
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      # Mount data.jsonl so timestamps and databases are preserved across container restarts
+      - ./data.jsonl:/app/data.jsonl
+      # If using ML sync script later, mount python script and data folders as needed
+
+  nginx:
+    image: nginx:alpine
+    container_name: karaoke-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/karaoke.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - karaoke-app
