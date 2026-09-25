@@ -40,3 +40,29 @@ This project is set up to create retro Super Nintendo-style music using:
 - Scan plugins in Sonar: `Edit > Preferences > File > VST Settings > Add Folder > Scan`.
 - Create an Instrument Track with C700.
 - Drag an `.spc` file (e.g. Super Mario World stage music) directly into the C700 interface to automatically load its sound bank!
+
+
+---
+
+# Karaoke Studio Web App
+
+A pure-JS, local-first Karaoke application featuring word-by-word highlighted lyrics, YouTube backing track synchronization, and automated document ingestion. Built entirely using Node.js.
+
+## Getting Started
+
+### 1. Install Dependencies
+``bash
+npm install
+``
+
+### 2. Start the Local Server
+``bash
+npx tsx src/server/server.ts
+``
+Then navigate to http://localhost:3030.
+
+### 3. (Optional) Run ML Auto-Alignment
+To automatically sync all unaligned tracks using OpenAI Whisper:
+``bash
+python scripts/auto_align.py
+``

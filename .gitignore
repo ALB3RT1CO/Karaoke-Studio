@@ -30,3 +30,28 @@ Desktop.ini
 dist/
 build/
 .next/
+
+# Ansible & Keys
+*.vault
+vault_password.txt
+.ansible/
+*.pem
+*.ppk
+id_rsa
+id_rsa.pub
+id_ed25519
+*.key
+*.p12
+*.pfx
+
+
+# Large Binary / Media files
+*.spc
+*.mid
+*.midi
+*.wav
+*.mp3
+*.mp4
+*.docx
+*.rtf
+

@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import mammoth from 'mammoth';
+import rtfParser from 'rtf-parser';
 
 const BACKUP_DIR = 'P:\\Backups\\Karaoke\\MisLetrasCancionesEspañol';
 const DATA_JSONL = path.resolve(process.cwd(), 'data.jsonl');
@@ -33,16 +34,36 @@ function extractChordTag(lineText) {
 }
 
 // Convert raw text into structured LyricLine[]
-function parseTextToLyricLines(rawText) {
+function parseTextToLyricLines(rawText, cleanTitle, author) {
   const rawLines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
   const lines = [];
 
+  const normalizeForCompare = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const cleanTitleNorm = normalizeForCompare(cleanTitle);
+  const authorNorm = normalizeForCompare(author);
+
   // Skip header lines (intro, title, author)
   let startIndex = 0;
-  for (let i = 0; i < Math.min(rawLines.length, 5); i++) {
+  for (let i = 0; i < Math.min(rawLines.length, 6); i++) {
     const l = rawLines[i].toLowerCase();
-    if (l.includes('autor:') || l.includes('intérprete') || l.includes('intro:') || l.includes('ritmo:')) {
-      startIndex = i + 1;
+    const lNorm = normalizeForCompare(l);
+
+    // Explicit metadata keywords
+    if (l.match(/(autor|intérprete|intacrprete|letra y m|intro|ritmo)/)) {
+      startIndex = Math.max(startIndex, i + 1);
+      continue;
+    }
+
+    // Check if line contains title (e.g. "19 dias y 500 noches (joaquin sabina)")
+    if (cleanTitleNorm.length > 3 && lNorm.includes(cleanTitleNorm)) {
+      startIndex = Math.max(startIndex, i + 1);
+      continue;
+    }
+
+    // Check if line contains author
+    if (authorNorm && author !== 'Traditional / Unknown' && lNorm.includes(authorNorm)) {
+      startIndex = Math.max(startIndex, i + 1);
+      continue;
     }
   }
 
@@ -50,7 +71,16 @@ function parseTextToLyricLines(rawText) {
 
   let currentTime = 10.0; // Start at 10s default intro
 
+  const isChordLine = (line) => {
+    const words = line.split(/[\s\-–,]+/).filter(w => w.trim().length > 0);
+    if (words.length === 0) return false;
+    const chordRegex = /^(do|re|mi|fa|sol|la|si|dis)[#b]?(m|dim|aug|sus|maj|min|dis|\d)*$/i;
+    return words.every(w => chordRegex.test(w.replace(/[.,¡!¿?…]/g, '')));
+  };
+
   lyricLines.forEach((textLine, lIdx) => {
+    if (isChordLine(textLine)) return;
+
     const chord = extractChordTag(textLine);
     const cleanWords = textLine
       .replace(/\b(rem|solm|la7|sim|mim|fa#7|dom|sol7|lam|fam|mim|rem|si7|re7|sib7)\b/gi, '')
@@ -143,8 +173,40 @@ async function run() {
     } else {
       // RTF fallback
       try {
-        rawText = fs.readFileSync(fullPath, 'latin1');
-      } catch (e) {}
+        const rawRtf = fs.readFileSync(fullPath, 'latin1');
+        rawText = await new Promise((resolve, reject) => {
+          rtfParser.string(rawRtf, (err, doc) => {
+            if (err) return reject(err);
+            function extractText(node) {
+              if (!node) return '';
+              if (node.value !== undefined) return node.value;
+              if (Array.isArray(node.content)) {
+                return node.content.map(extractText).join('');
+              }
+              return '';
+            }
+            if (!doc || !doc.content || !Array.isArray(doc.content)) return resolve('');
+            const lines = doc.content.map(p => extractText(p));
+            resolve(lines.join('\n'));
+          });
+        });
+        
+        // Detect author from text
+        const firstLines = rawText.split(/\r?\n/).slice(0, 8);
+        for (let i = 0; i < firstLines.length; i++) {
+          const l = firstLines[i].trim();
+          const match = l.match(/(?:Autor|Compositor|Letra|IntAcrprete|De)\s*[:\-?"]\s*(.+)/i);
+          if (match) {
+            author = match[1].trim();
+            break;
+          }
+          if (i === 1 && l.length < 35 && !l.toLowerCase().includes('intro') && !l.includes('-')) {
+            author = l;
+          }
+        }
+      } catch (e) {
+        console.warn(`[Ingest] Warning: Could not parse ${file}: ${e.message}`);
+      }
     }
 
     // Check if we have verified metadata in catalog.json
@@ -154,7 +216,7 @@ async function run() {
       author = verified.artist;
     }
 
-    const lines = parseTextToLyricLines(rawText);
+    const lines = parseTextToLyricLines(rawText, cleanTitle, author);
 
     const songRecord = {
       id: key || file.replace(/\.[^.]+$/, ''),

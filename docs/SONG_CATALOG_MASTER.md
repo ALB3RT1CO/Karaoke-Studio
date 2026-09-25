@@ -4,7 +4,7 @@
 
 | # | Song Title | Author / Artist | Key / Capo Variants | YouTube Video ID | YouTube Link |
 | :-: | :--- | :--- | :--- | :---: | :---: |
-| **1** | **19Díasy500Noches** | Joaquín Sabina | `19Díasy500Noches.docx` | `_w3c4U5B0gQ` | [Watch Video](https://www.youtube.com/watch?v=_w3c4U5B0gQ) |
+| **1** | **19Díasy500Noches** | Joaquín Sabina | `19Díasy500Noches.docx` | `qahBeZB1g54` | [Watch Video](https://www.youtube.com/watch?v=qahBeZB1g54) |
 | **2** | **1PorMes** |  | `1PorMes.docx` | `---` | Pending Mapping |
 | **3** | **a la deriva** | Tradicional / Popular | `a la deriva .rtf`, `A la Deriva.rtf` | `M7l3n6Xk2aE` | [Watch Video](https://www.youtube.com/watch?v=M7l3n6Xk2aE) |
 | **4** | **A la Molina** |  | `A la Molina.docx` | `---` | Pending Mapping |
@@ -138,7 +138,7 @@
 | **132** | **GolpesenelCorazón** |  | `GolpesenelCorazón.docx` | `---` | Pending Mapping |
 | **133** | **Golpesenelorazón** |  | `Golpesenelorazón.docx` | `---` | Pending Mapping |
 | **134** | **Gracias a la Vida** |  | `Gracias a la Vida.docx` | `---` | Pending Mapping |
-| **135** | **Gracias Señor** | Traditional / Unknown | `Gracias Señor.rtf` | `---` | Pending Mapping |
+| **135** | **Gracias Señor** | Joan Sebastian | `Gracias Señor.rtf` | `---` | Pending Mapping |
 | **136** | **Guitarra Mía** |  | `Guitarra Mía.docx` | `---` | Pending Mapping |
 | **137** | **Guitarreros** |  | `Guitarreros.docx` | `---` | Pending Mapping |
 | **138** | **Hasta la Raíz** |  | `Hasta la Raíz.docx` | `---` | Pending Mapping |

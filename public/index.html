@@ -352,6 +352,10 @@
         lineEl.className = 'lyric-line py-3 px-4 rounded-xl transition duration-300 relative';
 
         line.words.forEach((w, wIdx) => {
+          const wordContainer = document.createElement('div');
+          wordContainer.style.position = 'relative';
+          wordContainer.style.display = 'inline-block';
+
           const wordEl = document.createElement('span');
           wordEl.id = `word-${lIdx}-${wIdx}`;
           wordEl.className = 'karaoke-word text-xl sm:text-2xl';
@@ -362,8 +366,10 @@
             const chordEl = document.createElement('span');
             chordEl.className = 'chord-tag';
             chordEl.textContent = line.chord;
-            wordEl.appendChild(chordEl);
+            wordContainer.appendChild(chordEl);
           }
+
+          wordContainer.appendChild(wordEl);
 
           // Clicking a word seeks to its start time
           wordEl.onclick = () => {
@@ -372,7 +378,7 @@
             }
           };
 
-          lineEl.appendChild(wordEl);
+          lineEl.appendChild(wordContainer);
         });
 
         container.appendChild(lineEl);
@@ -589,7 +595,10 @@
         const line = activeTrack.lines[item.lineIndex];
         const word = line.words[item.wordIndex];
 
-        word.start = parseFloat(now.toFixed(2));
+        const newStart = parseFloat(now.toFixed(2));
+        const timeDelta = newStart - word.start;
+
+        word.start = newStart;
         word.end = parseFloat((now + 0.6).toFixed(2)); // Default duration 600ms or until next tap
 
         if (tapCurrentWordIdx > 0) {
@@ -599,8 +608,20 @@
           prevWord.end = word.start;
         }
 
+        // Shift all future words by the delta so they don't overlap!
+        for (let i = tapCurrentWordIdx + 1; i < flatWordList.length; i++) {
+          const fItem = flatWordList[i];
+          const fWord = activeTrack.lines[fItem.lineIndex].words[fItem.wordIndex];
+          fWord.start = parseFloat((fWord.start + timeDelta).toFixed(2));
+          fWord.end = parseFloat((fWord.end + timeDelta).toFixed(2));
+        }
+
         tapCurrentWordIdx++;
-        updateLyricsHighlight(now);
+        
+        if (tapCurrentWordIdx >= flatWordList.length) {
+          saveTimestampsToBackend();
+          alert("Finished tapping song! Timestamps auto-saved.");
+        }
       }
     }
 

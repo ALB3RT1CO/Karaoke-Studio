@@ -8,6 +8,7 @@ import {
   type WordTiming,
 } from '../store.ts';
 import { safeExtractDocxText } from './docx.ts';
+import { safeExtractRtfText } from './rtf.ts';
 
 export interface DriveSongFile {
   id: string;
@@ -186,11 +187,17 @@ export async function syncDriveFolder(
       let rawText = '';
 
       const isDocx =
-        file.mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        file.mimeType ===
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
         file.name.toLowerCase().endsWith('.docx');
+
+      const isRtf = file.name.toLowerCase().endsWith('.rtf');
 
       if (isDocx) {
         rawText = await safeExtractDocxText(stream);
+      } else if (isRtf) {
+        const rawString = await streamToString(stream);
+        rawText = await safeExtractRtfText(rawString);
       } else {
         rawText = await streamToString(stream);
       }
