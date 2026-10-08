@@ -7,6 +7,8 @@
     "test": "node --test",
     "test:tap": "node --test --test-reporter=tap",
     "test:junit": "node --test --test-reporter=junit --test-reporter-destination=test-report.xml",
+    "watchdog": "node scripts/watchdog.mjs",
+    "watchdog:test": "node --test test/watchdog.test.ts",
     "audit:archive": "node scripts/archive-audit.mjs"
   },
   "dependencies": {
