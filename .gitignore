@@ -66,3 +66,7 @@ Projects/
 *.vst3
 *.component
 
+
+# Separate projects
+.kiro/specs/midi-testing-lab/
+
