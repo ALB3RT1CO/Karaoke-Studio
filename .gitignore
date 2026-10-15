@@ -55,3 +55,14 @@ id_ed25519
 *.docx
 *.rtf
 
+
+# Audio / DAW binaries
+Plugins/
+Drivers/
+Samples/
+Projects/
+*.dll
+*.vst
+*.vst3
+*.component
+
